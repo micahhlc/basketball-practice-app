@@ -17,7 +17,9 @@
           type="number"
           class="border border-gray-400 p-1 rounded-md text-lg text-center w-20"
           :disabled="!goalEditable"
-          :class="{ 'opacity-50 bg-gray-200 cursor-not-allowed': !goalEditable }"
+          :class="{
+            'opacity-50 bg-gray-200 cursor-not-allowed': !goalEditable,
+          }"
         />
         <button
           @click="toggleGoalLock"
@@ -119,6 +121,21 @@
       </button>
     </div>
 
+    <!-- Save Message -->
+    <div v-if="saveMessage" class="text-center text-green-600 font-bold p-2">
+      {{ saveMessage }}
+    </div>
+
+    <!-- Save Practice Session Button -->
+    <div class="mt-4 flex justify-center">
+      <button
+        @click="savePracticeSession"
+        class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md w-full"
+      >
+        Save Practice Session
+      </button>
+    </div>
+
     <!-- Round Summary -->
     <div class="mt-6">
       <h2 class="text-xl font-semibold mb-2">Rounds:</h2>
@@ -214,10 +231,13 @@ const makes = ref(0);
 const misses = ref(0);
 const rounds = ref([]);
 const editingIndex = ref(null);
-const isBulkMode = ref(false);
+const isBulkMode = ref(true);
 const bulkMakes = ref(0);
 const bulkTotalShots = ref(0);
 const goalEditable = ref(true);
+const practiceSessions = ref([]); // Stores all completed practice sessions
+const saveMessage = ref(""); // Stores the success message
+
 
 // Toggle between Live Mode and Bulk Mode
 const toggleBulkMode = () => {
@@ -374,5 +394,45 @@ const deleteRound = (index) => {
 
   // Save to Local Storage
   saveToLocalStorage();
+};
+const savePracticeSession = () => {
+  if (rounds.value.length === 0) {
+    alert("No rounds to save!");
+    return;
+  }
+
+  // Create a session record
+  const session = {
+    date: new Date().toLocaleString(),
+    goal: goal.value,
+    totalShots: totalShots.value,
+    makes: totalMakes.value,
+    misses: totalMisses.value,
+    makePercentage: makePercentage.value,
+    rounds: [...rounds.value], // Copy rounds data
+  };
+
+  // Store session in history
+  practiceSessions.value.push(session);
+
+  // Save sessions to Local Storage
+  localStorage.setItem(
+    "practiceSessions",
+    JSON.stringify(practiceSessions.value)
+  );
+
+  // Reset current session
+  rounds.value = [];
+  totalShots.value = 0;
+  makes.value = 0;
+  misses.value = 0;
+  goalEditable.value = true;
+
+  // Save reset data
+  saveToLocalStorage();
+
+  // Show success message
+  saveMessage.value = "Practice session saved!";
+  setTimeout(() => (saveMessage.value = ""), 3000); // Clear after 3 sec
 };
 </script>
