@@ -1,5 +1,11 @@
 <template>
   <div class="p-4 pb-20">
+    <button
+      @click="console.log(practiceSessions)"
+      class="mt-2 w-full rounded-lg bg-gray-500 px-4 py-2 text-white shadow-md"
+    >
+      View Saved Sessions (Console)
+    </button>
     <h1 class="mb-4 text-2xl font-bold">Practice Session</h1>
 
     <!-- Set Practice Goal -->
@@ -276,6 +282,11 @@ const loadFromLocalStorage = () => {
   if (storedTotalShots) {
     totalShots.value = parseInt(storedTotalShots);
   }
+  // Load saved sessions for persistence
+  const storedSessions = localStorage.getItem("practiceSessions");
+  if (storedSessions) {
+    practiceSessions.value = JSON.parse(storedSessions);
+  }
 };
 // Load data when the component is mounted
 loadFromLocalStorage();
@@ -414,14 +425,17 @@ const savePracticeSession = () => {
     rounds: [...rounds.value], // Copy rounds data
   };
 
-  // Store session in history
-  practiceSessions.value.push(session);
+  // Retrieve existing saved sessions
+  const savedSessions =
+    JSON.parse(localStorage.getItem("practiceSessions")) || [];
+
+  // Add new session
+  savedSessions.push(session);
 
   // Save sessions to Local Storage
-  localStorage.setItem(
-    "practiceSessions",
-    JSON.stringify(practiceSessions.value),
-  );
+  localStorage.setItem("practiceSessions", JSON.stringify(savedSessions));
+  // ✅ Immediately update `practiceSessions` to reflect changes
+  practiceSessions.value = savedSessions;
 
   // Reset current session
   rounds.value = [];
