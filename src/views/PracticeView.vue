@@ -122,8 +122,8 @@
     </div>
 
     <!-- Save Message -->
-    <div v-if="saveMessage" class="p-2 text-center font-bold text-green-600">
-      {{ saveMessage }}
+    <div v-if="alertMessage" class="p-2 text-center font-bold text-green-600">
+      {{ alertMessage }}
     </div>
 
     <!-- Save Practice Session Button -->
@@ -236,7 +236,7 @@ const bulkMakes = ref(0);
 const bulkTotalShots = ref(0);
 const goalEditable = ref(true);
 const practiceSessions = ref([]); // Stores all completed practice sessions
-const saveMessage = ref(""); // Stores the success message
+const alertMessage = ref(""); // Stores the success message
 
 // Toggle between Live Mode and Bulk Mode
 const toggleBulkMode = () => {
@@ -306,8 +306,8 @@ const logMiss = () => {
 // Update logRound function to save after logging a round
 const logRound = () => {
   if (makes.value === 0 && misses.value === 0) {
-    saveMessage.value = "You haven't taken any shots in this round!";
-    setTimeout(() => (saveMessage.value = ""), 3000); // Clear after 3 sec
+    alertMessage.value = "You haven't taken any shots in this round!";
+    setTimeout(() => (alertMessage.value = ""), 3000); // Clear after 3 sec
     return;
   }
 
@@ -334,8 +334,8 @@ const logRound = () => {
 // Log Round in Bulk Mode
 const logBulkRound = () => {
   if (bulkMakes.value >= bulkTotalShots.value) {
-    saveMessage.value = "Total Makes cannot be greater than Total Shots!";
-    setTimeout(() => (saveMessage.value = ""), 3000); // Clear after 3 sec
+    alertMessage.value = "Total Makes cannot be greater than Total Shots!";
+    setTimeout(() => (alertMessage.value = ""), 3000); // Clear after 3 sec
     return;
   }
 
@@ -398,8 +398,8 @@ const deleteRound = (index) => {
 };
 const savePracticeSession = () => {
   if (rounds.value.length === 0) {
-    saveMessage.value = "No rounds to save.";
-    setTimeout(() => (saveMessage.value = ""), 3000); // Clear after 3 sec
+    alertMessage.value = "No rounds to save.";
+    setTimeout(() => (alertMessage.value = ""), 3000); // Clear after 3 sec
     return;
   }
 
@@ -434,7 +434,7 @@ const savePracticeSession = () => {
   saveToLocalStorage();
 
   // Show success message
-  saveMessage.value = "Practice session saved!";
-  setTimeout(() => (saveMessage.value = ""), 3000); // Clear after 3 sec
+  alertMessage.value = "Practice session saved!";
+  setTimeout(() => (alertMessage.value = ""), 3000); // Clear after 3 sec
 };
 </script>
