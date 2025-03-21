@@ -50,9 +50,14 @@ function getYYYYMMDD() {
 onMounted(() => {
   // Retrieve session ID and check if it's from today
   const storedSessionId = localStorage.getItem("currentSessionId");
-
+  console.log("Stored session ID:", storedSessionId);
+  const matchResult =
+    storedSessionId && storedSessionId.match(`session-${todayDate}\\d+`);
+  console.log("result of match: ", matchResult);
   if (storedSessionId && storedSessionId.match(`session-${todayDate}\\d+`)) {
     existingSessionId.value = storedSessionId;
+
+    console.log("Existing session ID found:", existingSessionId.value);
 
     // Load the goal from previous session
     const savedSession = localStorage.getItem(existingSessionId.value);
@@ -62,6 +67,7 @@ onMounted(() => {
     }
   } else {
     existingSessionId.value = null; // No valid session from today
+    console.log("No existing session found");
   }
 
   // If no session exists, fallback to last saved practice goal
