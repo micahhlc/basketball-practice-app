@@ -1,26 +1,26 @@
 <template>
-  <div
-    class="flex h-screen flex-col items-center justify-center bg-blue-100 p-6"
-  >
+  <div class="flex h-screen flex-col items-center justify-center p-6">
     <h1 class="mb-6 text-2xl font-bold">Set Your Practice Goal</h1>
-
-    <label for="goal" class="text-lg font-medium text-blue-800">
-      Total shots target:
-    </label>
-    <input
-      v-model.number="goal"
-      id="goal"
-      type="number"
-      class="mt-2 w-24 rounded-md border border-gray-400 p-2 text-center text-lg"
-    />
-
-    <button
-      @click="startPractice(false)"
-      :disabled="goal <= 0"
-      class="mt-4 rounded-lg bg-blue-500 px-6 py-2 text-white shadow-md disabled:opacity-50"
-    >
-      Start New Practice
-    </button>
+    <div class="flex">
+      <div class="flex flex-col items-start">
+        <label for="goal" class="text-lg font-medium text-blue-800">
+          Total shots target:
+        </label>
+        <input
+          v-model.number="goal"
+          id="goal"
+          type="number"
+          class="mt-2 w-24 rounded-md border border-gray-400 p-2 text-center text-lg"
+        />
+      </div>
+      <button
+        @click="startPractice(false)"
+        :disabled="goal <= 0"
+        class="mt-4 rounded-lg bg-blue-500 px-6 py-2 text-white shadow-md disabled:opacity-50"
+      >
+        Start New Practice
+      </button>
+    </div>
 
     <button
       v-if="existingSessionId"
@@ -50,30 +50,16 @@ function getYYYYMMDD() {
 onMounted(() => {
   // Retrieve session ID and check if it's from today
   const storedSessionId = localStorage.getItem("currentSessionId");
-  console.log("Stored session ID:", storedSessionId);
-  const matchResult =
-    storedSessionId && storedSessionId.match(`session-${todayDate}\\d+`);
-  console.log("result of match: ", matchResult);
-  if (storedSessionId && storedSessionId.match(`session-${todayDate}\\d+`)) {
+  const sessions = JSON.parse(localStorage.getItem("sessions")) || {};
+  const existingSession = sessions[storedSessionId] || null;
+  if (existingSession && storedSessionId.indexOf(todayDate) > -1) {
     existingSessionId.value = storedSessionId;
-
     console.log("Existing session ID found:", existingSessionId.value);
-
-    // Load the goal from previous session
-    const savedSession = localStorage.getItem(existingSessionId.value);
-    if (savedSession) {
-      const parsed = JSON.parse(savedSession);
-      goal.value = parsed.goal; // ✅ Load previous goal
-    }
+    goal.value = existingSession.goal; // Load existing session goal
+    console.log("Existing session goal:", goal.value);
   } else {
-    existingSessionId.value = null; // No valid session from today
     console.log("No existing session found");
-  }
-
-  // If no session exists, fallback to last saved practice goal
-  const lastGoal = localStorage.getItem("practiceGoal");
-  if (!existingSessionId.value && lastGoal) {
-    goal.value = parseInt(lastGoal);
+    goal.value = parseInt(localStorage.getItem("practiceGoal")) || 200; // Load last goal
   }
 });
 
@@ -88,9 +74,8 @@ const startPractice = (reloadPrevious) => {
     // ✅ Create a new session ID with today's date
     sessionId = `session-${todayDate}-${Date.now()}`;
     localStorage.setItem("currentSessionId", sessionId);
+    localStorage.setItem("practiceGoal", goal.value); // Save goal
   }
-
-  localStorage.setItem("practiceGoal", goal.value); // Save goal
-  router.push("/practice-d"); // Navigate to Practice page
+  router.push({ path: "/practice-d", query: { sessionId } });
 };
 </script>

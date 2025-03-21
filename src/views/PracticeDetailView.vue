@@ -107,6 +107,83 @@
       </button>
     </div>
   </div>
+  <!-- Round Summary -->
+  <div class="mt-6">
+    <h2 class="mb-2 text-xl font-semibold">Rounds:</h2>
+    <ul>
+      <li
+        v-for="(round, index) in rounds"
+        :key="index"
+        class="mb-2 rounded-lg border border-gray-300 bg-gray-100 p-4 shadow-sm"
+      >
+        <!-- First Row: Round Info & Buttons -->
+        <div class="flex items-center justify-between">
+          <!-- Left Side: Round Info -->
+          <div>
+            <strong>Round {{ index + 1 }}: </strong>
+            <span class="font-semibold text-green-600">
+              {{ round.makes }}
+            </span>
+            /
+            <span class="font-bold">
+              {{ round.makes + round.misses }}
+            </span>
+            <span class="px-2 font-bold">
+              {{
+                ((round.makes / (round.makes + round.misses)) * 100).toFixed(1)
+              }}%
+            </span>
+          </div>
+
+          <!-- Right Side: Edit & Delete Buttons -->
+          <div class="flex gap-2">
+            <button
+              @click="editRound(index)"
+              class="rounded-md border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-100"
+            >
+              Edit
+            </button>
+            <button
+              @click="deleteRound(index)"
+              class="rounded-md border border-red-600 px-3 py-1 text-red-600 hover:bg-red-100"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Second Row (Only Shown When Editing) -->
+        <div v-if="editingIndex === index" class="mt-2 flex items-center gap-2">
+          <input
+            v-model.number="round.makes"
+            type="number"
+            min="0"
+            class="w-16 rounded border px-3 py-1 text-center"
+          />
+          <input
+            v-model.number="round.misses"
+            type="number"
+            min="0"
+            class="w-16 rounded border px-3 py-1 text-center"
+          />
+          <div class="flex gap-2">
+            <button
+              @click="saveEdit"
+              class="rounded bg-green-500 px-3 py-1 text-white"
+            >
+              Save
+            </button>
+            <button
+              @click="cancelEdit"
+              class="rounded bg-gray-500 px-3 py-1 text-white"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script setup>
@@ -116,24 +193,24 @@ import { useRoute, useRouter } from "vue-router";
 // Data
 const router = useRouter();
 const route = useRoute();
-const sessionId = ref(route.query.sessionId || generateSessionId());
-const goal = ref(200);
+const sessionId = ref(route.query.sessionId);
+const goal = ref();
 const totalShots = ref(0);
 const makes = ref(0);
 const misses = ref(0);
 const rounds = ref([]);
+const editingIndex = ref(null);
 const isBulkMode = ref(true);
 const bulkMakes = ref(0);
 const bulkTotalShots = ref(0);
 const alertMessage = ref("");
 
 onMounted(() => {
-  const storedSessions = JSON.parse(localStorage.getItem("sessions")) || [];
-  const session = storedSessions.find((s) => s.sessionId === sessionId.value);
-  if (session) {
-    goal.value = session.goal;
-    totalShots.value = session.totalShots;
-    rounds.value = session.rounds;
+  if (sessionId.value) {
+    goal.value = JSON.parse(localStorage.getItem("practiceGoal"));
+  } else {
+    router.push("/practice-g"); // Redirect to goal setting page
+    return;
   }
 });
 
@@ -148,12 +225,6 @@ const makePercentage = computed(() =>
   ).toFixed(1),
 );
 const goalReached = computed(() => totalShots.value >= goal.value);
-
-// Function to generate session ID
-function generateSessionId() {
-  const date = new Date().toISOString().split("T")[0].replace(/-/g, "");
-  return `session-${date}-${Date.now()}`;
-}
 
 // Log Functions
 const logMake = () => {
@@ -204,11 +275,6 @@ const savePracticeSession = () => {
     return;
   }
 
-  const storedSessions = JSON.parse(localStorage.getItem("sessions")) || [];
-  const existingSessionIndex = storedSessions.findIndex(
-    (s) => s.sessionId === sessionId.value,
-  );
-
   const sessionData = {
     sessionId: sessionId.value,
     date: new Date().toLocaleString(),
@@ -218,12 +284,13 @@ const savePracticeSession = () => {
     rounds: [...rounds.value],
   };
 
-  if (existingSessionIndex !== -1) {
-    storedSessions[existingSessionIndex] = sessionData;
-  } else {
-    storedSessions.push(sessionData);
-  }
+  // Load existing sessions (as an object)
+  const storedSessions = JSON.parse(localStorage.getItem("sessions")) || {};
 
+  // Add or update the session by ID
+  storedSessions[sessionId.value] = sessionData;
+
+  // Save back to localStorage
   localStorage.setItem("sessions", JSON.stringify(storedSessions));
   alertMessage.value = "Practice session saved!";
   setTimeout(() => (alertMessage.value = ""), 3000);
