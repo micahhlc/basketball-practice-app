@@ -1,34 +1,41 @@
 <template>
+  <!-- main div to store everthing -->
   <div class="flex h-screen flex-col items-center justify-center p-6">
-    <h1 class="mb-6 text-2xl font-bold">Set Your Practice Goal</h1>
-    <div class="flex">
-      <div class="flex flex-col items-start">
-        <label for="goal" class="text-lg font-medium text-blue-800">
-          Total shots target:
-        </label>
+    <!-- New practice area -->
+    <div class="m-6 flex w-84 flex-col rounded-lg bg-blue-100 p-6 shadow-md">
+      <h1 class="mb-6 text-2xl">Start new practice</h1>
+      <p class="pb-4">Set the number of shots of the practice session.</p>
+      <!-- left for input -->
+      <div class="m-auto flex flex-row gap-4">
         <input
           v-model.number="goal"
           id="goal"
           type="number"
-          class="mt-2 w-24 rounded-md border border-gray-400 p-2 text-center text-lg"
+          class="mt-4 w-24 rounded-md border border-gray-400 p-2 text-center text-lg"
         />
+        <button
+          @click="startPractice(false)"
+          :disabled="goal <= 0"
+          class="mt-4 rounded-lg bg-blue-500 px-6 py-2 text-white shadow-md disabled:opacity-50"
+        >
+          Start
+        </button>
       </div>
-      <button
-        @click="startPractice(false)"
-        :disabled="goal <= 0"
-        class="mt-4 rounded-lg bg-blue-500 px-6 py-2 text-white shadow-md disabled:opacity-50"
-      >
-        Start New Practice
-      </button>
     </div>
 
-    <button
-      v-if="existingSessionId"
-      @click="startPractice(true)"
-      class="mt-2 rounded-lg bg-green-500 px-6 py-2 text-white shadow-md"
+    <!-- Continue previous session -->
+    <div
+      v-if="sameDaySession"
+      class="m-6 flex w-84 flex-col rounded-lg bg-green-100 p-6 shadow-md"
     >
-      Continue Previous Session
-    </button>
+      <h1 class="mb-6 text-2xl">Resume previous session</h1>
+      <button
+        @click="startPractice(true)"
+        class="mt-2 rounded-lg bg-green-500 px-6 py-2 text-white shadow-md"
+      >
+        Resume
+      </button>
+    </div>
   </div>
 </template>
 
@@ -37,9 +44,11 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const goal = ref(200);
-const existingSessionId = ref(null); // Store previous session ID (if exists)
 const todayDate = getYYYYMMDD(); // Generate today's date string
+const goal = ref(200);
+const sameDaySession = ref(false);
+let sessionId = "";
+let currentSession = {};
 
 // Function to get YYYYMMDD format date
 function getYYYYMMDD() {
@@ -49,33 +58,40 @@ function getYYYYMMDD() {
 
 onMounted(() => {
   // Retrieve session ID and check if it's from today
-  const storedSessionId = localStorage.getItem("currentSessionId");
-  const sessions = JSON.parse(localStorage.getItem("sessions")) || {};
-  const existingSession = sessions[storedSessionId] || null;
-  if (existingSession && storedSessionId.indexOf(todayDate) > -1) {
-    existingSessionId.value = storedSessionId;
-    console.log("Existing session ID found:", existingSessionId.value);
-    goal.value = existingSession.goal; // Load existing session goal
-    console.log("Existing session goal:", goal.value);
+  currentSession = JSON.parse(localStorage.getItem("currentSession"));
+  console.log("currentSession: ", currentSession);
+  // console.log("currentSession.sessionId: ", currentSession.sessionId);
+  // if (currentSession && currentSession.sessionId.indexOf(todayDate) > -1) {
+  if (currentSession?.sessionId?.includes(todayDate)) {
+    sameDaySession.value = true;
+    console.log("same day session found");
   } else {
     console.log("No existing session found");
-    goal.value = parseInt(localStorage.getItem("practiceGoal")) || 200; // Load last goal
   }
 });
 
 // Function to start a new or continue an existing practice session
 const startPractice = (reloadPrevious) => {
-  let sessionId;
-
-  if (reloadPrevious && existingSessionId.value) {
-    // ✅ Continue today's existing session
-    sessionId = existingSessionId.value;
+  if (reloadPrevious && sameDaySession) {
+    console.log("reload true: ", sessionId);
+    sessionId = currentSession.sessionId;
+    router.push({
+      path: "/practice-d",
+      query: {
+        sessionId: sessionId,
+        goal: currentSession.goal,
+      },
+    });
   } else {
-    // ✅ Create a new session ID with today's date
+    console.log("reload false: ", sessionId);
     sessionId = `session-${todayDate}-${Date.now()}`;
-    localStorage.setItem("currentSessionId", sessionId);
-    localStorage.setItem("practiceGoal", goal.value); // Save goal
+    router.push({
+      path: "/practice-d",
+      query: {
+        sessionId: sessionId,
+        goal: goal.value,
+      },
+    });
   }
-  router.push({ path: "/practice-d", query: { sessionId } });
 };
 </script>
