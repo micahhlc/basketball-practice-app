@@ -29,6 +29,13 @@
       class="m-6 flex w-84 flex-col rounded-lg bg-green-100 p-6 shadow-md"
     >
       <h1 class="mb-6 text-2xl">Resume previous session</h1>
+      <p class="pb-4">
+        You have a session from today. Do you want to continue?
+      </p>
+      <div class="m-4 flex justify-between gap-2 bg-white p-4">
+        <label for="">Goal:</label><span>{{ currentSession.goal }}</span>
+      </div>
+
       <button
         @click="startPractice(true)"
         class="mt-2 rounded-lg bg-green-500 px-6 py-2 text-white shadow-md"
@@ -59,21 +66,18 @@ function getYYYYMMDD() {
 onMounted(() => {
   // Retrieve session ID and check if it's from today
   currentSession = JSON.parse(localStorage.getItem("currentSession"));
-  console.log("currentSession: ", currentSession);
-  // console.log("currentSession.sessionId: ", currentSession.sessionId);
-  // if (currentSession && currentSession.sessionId.indexOf(todayDate) > -1) {
   if (currentSession?.sessionId?.includes(todayDate)) {
     sameDaySession.value = true;
-    console.log("same day session found");
+    console.log("p-g: same day session found");
   } else {
-    console.log("No existing session found");
+    console.log("p-g: No existing session found");
   }
 });
 
 // Function to start a new or continue an existing practice session
 const startPractice = (reloadPrevious) => {
   if (reloadPrevious && sameDaySession) {
-    console.log("reload true: ", sessionId);
+    console.log("p-g: reload true: ", sessionId);
     sessionId = currentSession.sessionId;
     router.push({
       path: "/practice-d",
@@ -83,7 +87,7 @@ const startPractice = (reloadPrevious) => {
       },
     });
   } else {
-    console.log("reload false: ", sessionId);
+    console.log("p-g: reload false: ", sessionId);
     sessionId = `session-${todayDate}-${Date.now()}`;
     router.push({
       path: "/practice-d",

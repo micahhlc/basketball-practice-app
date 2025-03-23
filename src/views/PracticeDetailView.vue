@@ -210,13 +210,25 @@ const isBulkMode = ref(true);
 const bulkMakes = ref(0);
 const bulkTotalShots = ref(0);
 const alertMessage = ref("");
+let currentSession = {};
 
 onMounted(() => {
-  console.log("Session ID:", sessionId);
-  console.log("Goal:", goal);
+  console.log("p-d: Session ID:", sessionId);
+  console.log("p-d: Goal:", goal);
   if (!sessionId) {
     router.push("/practice-g"); // Redirect to goal setting page
     return;
+  }
+  currentSession = JSON.parse(localStorage.getItem("currentSession"));
+  if (
+    currentSession.sessionId == sessionId &&
+    currentSession?.rounds?.length > 0
+  ) {
+    console.log("p-d: currentSession:", currentSession);
+    rounds.value = currentSession.rounds;
+    console.log("p-d: Rounds:", rounds.value);
+  } else {
+    console.log("p-d: No existing session found");
   }
 });
 
