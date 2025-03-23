@@ -32,8 +32,11 @@
       <p class="pb-4">
         You have a session from today. Do you want to continue?
       </p>
-      <div class="m-4 flex justify-between gap-2 bg-white p-4">
-        <label for="">Goal:</label><span>{{ currentSession.goal }}</span>
+      <div
+        class="m-4 flex justify-between gap-2 rounded-lg border border-blue-300 bg-blue-100 p-4 shadow-md"
+      >
+        <label class="font-bold">Goal:</label
+        ><span class="text-gray-400">{{ currentSession.goal }}</span>
       </div>
 
       <button

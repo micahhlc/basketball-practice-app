@@ -1,20 +1,19 @@
 <template>
+  <!-- main div -->
   <div class="p-4 pb-20">
     <h1 class="mb-4 text-2xl font-bold">Practice Session</h1>
 
-    <!-- Set Practice Goal -->
+    <!-- Practice Goal -->
     <div
       class="mb-4 flex items-center justify-between rounded-lg border border-blue-300 bg-blue-100 p-2 shadow-md"
     >
       <div class="flex items-center gap-2">
-        <label for="goal" class="text-lg font-medium text-blue-800">
-          Goal:
-        </label>
+        <label for="goal" class="text-w text-lg font-bold"> Goal: </label>
         <input
           v-model.number="goal"
           id="goal"
           type="number"
-          class="w-20 rounded-md border border-gray-400 p-1 text-center text-lg"
+          class="w-20 rounded-md border border-gray-400 p-1 text-center text-lg text-gray-400"
           disabled
         />
       </div>
@@ -221,8 +220,8 @@ onMounted(() => {
   }
   currentSession = JSON.parse(localStorage.getItem("currentSession"));
   if (
-    currentSession.sessionId == sessionId &&
-    currentSession?.rounds?.length > 0
+    currentSession?.rounds?.length > 0 &&
+    currentSession.sessionId == sessionId
   ) {
     console.log("p-d: currentSession:", currentSession);
     rounds.value = currentSession.rounds;
