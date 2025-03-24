@@ -74,7 +74,7 @@ onMounted(() => {
     sameDaySession.value = true;
     console.log("p-g: same day session found");
   } else {
-    console.log("p-g: No existing session found");
+    console.log("p-g: No same day session found");
   }
 });
 

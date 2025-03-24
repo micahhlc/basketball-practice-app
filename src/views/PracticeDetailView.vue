@@ -42,12 +42,20 @@
         <label class="mb-4 block text-lg font-medium">
           {{ isBulkMode ? "Bulk Input Mode" : "Live Mode" }}
         </label>
-        <button
+        <!-- Switch Component -->
+        <div
           @click="toggleInputMode"
-          class="rounded-lg bg-blue-500 px-2 py-1 text-white shadow-md"
+          class="relative mb-4 inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors duration-300"
+          :class="{ 'bg-blue-500': isBulkMode }"
         >
-          Switch
-        </button>
+          <span
+            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300"
+            :class="{
+              'translate-x-6': isBulkMode,
+              'translate-x-1': !isBulkMode,
+            }"
+          ></span>
+        </div>
       </div>
 
       <!-- Live Mode -->
@@ -66,8 +74,8 @@
           Miss
         </button>
         <p class="px-1 py-2 font-bold text-red-600">{{ misses }}</p>
-        <span class="text-black-600 px-1 py-2 font-bold">Total </span>
-        <span class="text-black-200 px-1 py-2 font-bold">{{ roundShots }}</span>
+        <span class="text-black-600 px-1 py-2 font-bold">Attempts </span>
+        <span class="text-black-200 px-1 py-2 font-bold">{{ attempts }}</span>
       </div>
 
       <!-- Bulk Mode  -->
@@ -78,9 +86,9 @@
           type="number"
           class="w-1/2 rounded border p-1 text-center"
         />
-        <span class="px-2 py-2 font-bold">Total</span>
+        <span class="px-2 py-2 font-bold">Attempts</span>
         <input
-          v-model.number="roundShots"
+          v-model.number="attempts"
           type="number"
           class="w-1/2 rounded border p-1 text-center"
         />
@@ -128,14 +136,10 @@
               </span>
               /
               <span class="font-bold">
-                {{ round.makes + round.misses }}
+                {{ round.attempts }}
               </span>
               <span class="px-2 font-bold">
-                {{
-                  ((round.makes / (round.makes + round.misses)) * 100).toFixed(
-                    1,
-                  )
-                }}%
+                {{ ((round.makes / round.attempts) * 100).toFixed(1) }}%
               </span>
             </div>
 
@@ -162,20 +166,20 @@
             class="mt-2 flex items-center gap-2"
           >
             <input
-              v-model.number="round.makes"
+              v-model.number="tempMakes"
               type="number"
               min="0"
               class="w-16 rounded border px-3 py-1 text-center"
             />
             <input
-              v-model.number="round.misses"
+              v-model.number="tempAttempts"
               type="number"
               min="0"
               class="w-16 rounded border px-3 py-1 text-center"
             />
             <div class="flex gap-2">
               <button
-                @click="saveEdit"
+                @click="saveEdit(index)"
                 class="rounded bg-green-500 px-3 py-1 text-white"
               >
                 Save
@@ -220,57 +224,59 @@ const makePercentage = computed(() =>
 // Shared Input Area used variables
 const makes = ref(0);
 const misses = ref(0);
-const roundShots = ref(0);
+const attempts = ref(0);
 const isBulkMode = ref(true);
-
-// Save rounds used variables
-const rounds = ref([]);
-const alertMessage = ref("");
-
-let currentSession = {}; //onMount and savePracticeSession
-
-const editingIndex = ref(null); //Edit and Delete Rounds
-
-// Methods
 // togggle input mode
 const toggleInputMode = () => {
   if (isBulkMode.value) {
-    misses.value = roundShots.value - makes.value;
+    misses.value = attempts.value - makes.value;
   }
   isBulkMode.value = !isBulkMode.value;
+  console.log("isBulkMode:", isBulkMode.value);
 };
 // Live moode log makes and misses
 const logMake = () => {
   makes.value++;
   // totalShots.value++;
-  roundShots.value++;
+  attempts.value++;
 };
 const logMiss = () => {
   misses.value++;
   // totalShots.value++;
-  roundShots.value++;
+  attempts.value++;
 };
 // Log round
 const logRound = () => {
-  if (roundShots.value === 0) {
+  if (attempts.value === 0) {
     alertMessage.value = "You haven't taken any shots!";
     setTimeout(() => (alertMessage.value = ""), 3000);
     return;
   }
-  if (makes.value > roundShots.value) {
+  if (makes.value > attempts.value) {
     alertMessage.value = "Makes cannot be greater than Total Shots!";
     setTimeout(() => (alertMessage.value = ""), 3000);
     return;
   }
-  rounds.value.push({ makes: makes.value, misses: misses.value });
-  totalShots.value = rounds.value.reduce(
-    (sum, round) => sum + round.makes + round.misses,
-    0,
-  );
+  if (!makes.value) {
+    alertMessage.value = "Wrong input!";
+    setTimeout(() => (alertMessage.value = ""), 3000);
+    return;
+  }
+  // if (!isBulkMode) {
+  //   misses.value = attempts.value - makes.value;
+  // }
+  console.log("p-d: Log Round", makes.value, attempts.value);
+  rounds.value.push({ makes: makes.value, attempts: attempts.value });
+  totalShots.value += attempts.value;
   makes.value = 0;
   misses.value = 0;
-  roundShots.value = 0;
+  attempts.value = 0;
 };
+
+// Save rounds used variables
+const rounds = ref([]);
+const alertMessage = ref("");
+let currentSession = {}; //onMount and savePracticeSession
 
 // Save Practice Session
 const savePracticeSession = () => {
@@ -303,12 +309,46 @@ const savePracticeSession = () => {
 };
 
 // Edit and Delete Rounds
-
+const editingIndex = ref(null); //Edit and Delete Rounds
+const tempMakes = ref(0);
+const tempAttempts = ref(0);
 const editRound = (index) => {
   editingIndex.value = index;
-  makes.value = rounds.value[index].makes;
-  misses.value = rounds.value[index].misses;
-  roundShots.value = rounds.value[index].makes + rounds.value[index].misses;
+  tempMakes.value = rounds.value[editingIndex.value].makes;
+  tempAttempts.value = rounds.value[editingIndex.value].attempts;
+};
+const saveEdit = (index) => {
+  console.log(index, tempMakes.value, tempAttempts.value);
+  if (tempAttempts.value === 0) {
+    alertMessage.value = "You haven't taken any shots!";
+    setTimeout(() => (alertMessage.value = ""), 3000);
+    return;
+  }
+  if (tempMakes.value > tempAttempts.value) {
+    alertMessage.value = "Makes cannot be greater than Total Shots!";
+    setTimeout(() => (alertMessage.value = ""), 3000);
+    return;
+  }
+  if (!tempMakes.value) {
+    alertMessage.value = "Wrong input!";
+    setTimeout(() => (alertMessage.value = ""), 3000);
+    return;
+  }
+  rounds.value[editingIndex.value].makes = tempMakes.value;
+  rounds.value[editingIndex.value].attempts = tempAttempts.value;
+  totalShots.value = rounds.value.reduce(
+    (sum, round) => sum + round.attempts,
+    0,
+  );
+  editingIndex.value = null;
+};
+const cancelEdit = () => {
+  editingIndex.value = null;
+};
+
+const deleteRound = (index) => {
+  totalShots.value -= rounds.value[index].attempts;
+  rounds.value.splice(index, 1);
 };
 
 onMounted(() => {
