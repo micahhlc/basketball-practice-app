@@ -35,8 +35,9 @@
       <div
         class="m-4 flex justify-between gap-2 rounded-lg border border-blue-300 bg-blue-100 p-4 shadow-md"
       >
-        <label class="font-bold">Goal:</label
-        ><span class="text-gray-400">{{ currentSession.goal }}</span>
+        <label for="goal" class="text-w text-lg font-bold"> Goal: </label>
+
+        <span class="text-gray-400">{{ currentSession.goal }}</span>
       </div>
 
       <button

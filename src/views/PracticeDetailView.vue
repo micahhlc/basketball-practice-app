@@ -5,21 +5,15 @@
 
     <!-- Practice Goal -->
     <div
-      class="mb-4 flex items-center justify-between rounded-lg border border-blue-300 bg-blue-100 p-2 shadow-md"
+      class="mb-4 flex items-center justify-between rounded-lg border border-blue-300 bg-blue-100 p-3 shadow-md"
     >
-      <div class="flex items-center gap-2">
+      <div class="flex items-center justify-between gap-4">
         <label for="goal" class="text-w text-lg font-bold"> Goal: </label>
-        <input
-          v-model.number="goal"
-          id="goal"
-          type="number"
-          class="w-20 rounded-md border border-gray-400 p-1 text-center text-lg text-gray-400"
-          disabled
-        />
+        <span class="text-gray-400">{{ goal }}</span>
       </div>
 
       <!-- Right: Reach Goal Indicator -->
-      <div class="text-lg font-semibold text-blue-900">
+      <div class="mx-2 text-lg font-semibold text-blue-900">
         <span :class="goalReached ? 'text-green-600' : 'text-red-600'">
           {{ goalReached ? "Yes 🎯" : "No ❌" }}
         </span>
@@ -31,22 +25,32 @@
       class="mb-4 flex items-center justify-between rounded-md bg-gray-100 p-3 text-lg"
     >
       <p>
-        Makes: <strong class="text-green-600">{{ totalMakes + makes }}</strong>
+        Makes: <strong class="text-green-600">{{ totalMakes }}</strong>
       </p>
       <p>
         Total Shots: <strong class="text-red-600">{{ totalShots }}</strong>
       </p>
       <p>
-        Make %: <strong>{{ makePercentage }}%</strong>
+        Make %: <strong class="text-yellow-600">{{ makePercentage }}%</strong>
       </p>
     </div>
 
     <!-- Shared Input Area -->
     <div class="mt-4 rounded-lg border border-gray-300 bg-gray-100 p-4">
-      <label class="block text-lg font-medium">
-        {{ isBulkMode ? "Bulk Input Mode" : "Live Mode" }}
-      </label>
+      <!-- Toggle input mode -->
+      <div class="flex items-center justify-between">
+        <label class="mb-4 block text-lg font-medium">
+          {{ isBulkMode ? "Bulk Input Mode" : "Live Mode" }}
+        </label>
+        <button
+          @click="toggleInputMode"
+          class="rounded-lg bg-blue-500 px-2 py-1 text-white shadow-md"
+        >
+          Switch
+        </button>
+      </div>
 
+      <!-- Live Mode -->
       <div v-if="!isBulkMode" class="mt-2 flex justify-center gap-4">
         <button
           @click="logMake"
@@ -63,28 +67,27 @@
         </button>
         <p class="px-1 py-2 font-bold text-red-600">{{ misses }}</p>
         <span class="text-black-600 px-1 py-2 font-bold">Total </span>
-        <span class="text-black-200 px-1 py-2 font-bold">{{
-          makes + misses
-        }}</span>
+        <span class="text-black-200 px-1 py-2 font-bold">{{ roundShots }}</span>
       </div>
 
+      <!-- Bulk Mode  -->
       <div v-if="isBulkMode" class="mt-2 flex gap-4">
         <span class="px-2 py-2 font-bold text-green-600">Makes</span>
         <input
-          v-model.number="bulkMakes"
+          v-model.number="makes"
           type="number"
           class="w-1/2 rounded border p-1 text-center"
         />
         <span class="px-2 py-2 font-bold">Total</span>
         <input
-          v-model.number="bulkTotalShots"
+          v-model.number="roundShots"
           type="number"
           class="w-1/2 rounded border p-1 text-center"
         />
       </div>
 
       <button
-        @click="isBulkMode ? logBulkRound() : logRound()"
+        @click="logRound()"
         class="mt-4 w-full rounded-lg bg-blue-500 px-4 py-2 text-white shadow-md"
       >
         Log Round
@@ -200,62 +203,62 @@ const router = useRouter();
 const route = useRoute();
 const sessionId = route.query.sessionId; //from practice-g
 const goal = Number(route.query.goal); //from practice-g
+const goalReached = computed(() => totalShots.value >= goal);
+
+// Progress Display used variables
 const totalShots = ref(0);
-const makes = ref(0);
-const misses = ref(0);
-const rounds = ref([]);
-const editingIndex = ref(null);
-const isBulkMode = ref(true);
-const bulkMakes = ref(0);
-const bulkTotalShots = ref(0);
-const alertMessage = ref("");
-let currentSession = {};
-
-onMounted(() => {
-  console.log("p-d: Session ID:", sessionId);
-  console.log("p-d: Goal:", goal);
-  if (!sessionId) {
-    router.push("/practice-g"); // Redirect to goal setting page
-    return;
-  }
-  currentSession = JSON.parse(localStorage.getItem("currentSession"));
-  if (
-    currentSession?.rounds?.length > 0 &&
-    currentSession.sessionId == sessionId
-  ) {
-    console.log("p-d: currentSession:", currentSession);
-    rounds.value = currentSession.rounds;
-    console.log("p-d: Rounds:", rounds.value);
-  } else {
-    console.log("p-d: No existing session found");
-  }
-});
-
-// Computed Properties
 const totalMakes = computed(() =>
   rounds.value.reduce((sum, round) => sum + round.makes, 0),
 );
 const makePercentage = computed(() =>
   (totalShots.value === 0
     ? 0
-    : ((totalMakes.value + makes.value) / totalShots.value) * 100
+    : (totalMakes.value / totalShots.value) * 100
   ).toFixed(1),
 );
-const goalReached = computed(() => totalShots.value >= goal.value);
 
-// Log Functions
+// Shared Input Area used variables
+const makes = ref(0);
+const misses = ref(0);
+const roundShots = ref(0);
+const isBulkMode = ref(true);
+
+// Save rounds used variables
+const rounds = ref([]);
+const alertMessage = ref("");
+
+let currentSession = {}; //onMount and savePracticeSession
+
+const editingIndex = ref(null); //Edit and Delete Rounds
+
+// Methods
+// togggle input mode
+const toggleInputMode = () => {
+  if (isBulkMode.value) {
+    misses.value = roundShots.value - makes.value;
+  }
+  isBulkMode.value = !isBulkMode.value;
+};
+// Live moode log makes and misses
 const logMake = () => {
   makes.value++;
-  totalShots.value++;
+  // totalShots.value++;
+  roundShots.value++;
 };
 const logMiss = () => {
   misses.value++;
-  totalShots.value++;
+  // totalShots.value++;
+  roundShots.value++;
 };
-
+// Log round
 const logRound = () => {
-  if (makes.value === 0 && misses.value === 0) {
+  if (roundShots.value === 0) {
     alertMessage.value = "You haven't taken any shots!";
+    setTimeout(() => (alertMessage.value = ""), 3000);
+    return;
+  }
+  if (makes.value > roundShots.value) {
+    alertMessage.value = "Makes cannot be greater than Total Shots!";
     setTimeout(() => (alertMessage.value = ""), 3000);
     return;
   }
@@ -266,22 +269,7 @@ const logRound = () => {
   );
   makes.value = 0;
   misses.value = 0;
-};
-
-const logBulkRound = () => {
-  if (bulkMakes.value > bulkTotalShots.value) {
-    alertMessage.value = "Total Makes cannot be greater than Total Shots!";
-    setTimeout(() => (alertMessage.value = ""), 3000);
-    return;
-  }
-  const bulkMisses = bulkTotalShots.value - bulkMakes.value;
-  rounds.value.push({ makes: bulkMakes.value, misses: bulkMisses });
-  totalShots.value = rounds.value.reduce(
-    (sum, round) => sum + round.makes + round.misses,
-    0,
-  );
-  bulkMakes.value = 0;
-  bulkTotalShots.value = 0;
+  roundShots.value = 0;
 };
 
 // Save Practice Session
@@ -313,4 +301,34 @@ const savePracticeSession = () => {
   alertMessage.value = "Practice session saved!";
   setTimeout(() => (alertMessage.value = ""), 3000);
 };
+
+// Edit and Delete Rounds
+
+const editRound = (index) => {
+  editingIndex.value = index;
+  makes.value = rounds.value[index].makes;
+  misses.value = rounds.value[index].misses;
+  roundShots.value = rounds.value[index].makes + rounds.value[index].misses;
+};
+
+onMounted(() => {
+  console.log("p-d: Session ID:", sessionId);
+  console.log("p-d: Goal:", goal);
+  if (!sessionId) {
+    router.push("/practice-g"); // Redirect to goal setting page
+    return;
+  }
+  currentSession = JSON.parse(localStorage.getItem("currentSession"));
+  if (
+    currentSession?.rounds?.length > 0 &&
+    currentSession.sessionId == sessionId
+  ) {
+    console.log("p-d: currentSession:", currentSession);
+    rounds.value = currentSession.rounds;
+    totalShots.value = currentSession.totalShots;
+    console.log("p-d: Rounds:", rounds.value[0]);
+  } else {
+    console.log("p-d: No existing session found");
+  }
+});
 </script>
