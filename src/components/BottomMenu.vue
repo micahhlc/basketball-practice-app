@@ -9,9 +9,9 @@
         Practice
       </RouterLink>
       <RouterLink
-        to="/stats"
+        to="/test"
         class="menu-item"
-        :class="{ 'text-blue-400': $route.path === '/stats' }"
+        :class="{ 'text-blue-400': $route.path === '/test' }"
       >
         Stats
       </RouterLink>
