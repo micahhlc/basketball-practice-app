@@ -7,7 +7,7 @@
         @click="handleClick1"
         class="rounded-full p-2 transition-transform hover:scale-110"
       >
-        <img src="../assets/basketball.png" alt="Basketball" class="h-8 w-8" />
+        {{} dynamicValue }}
       </button>
     </div>
     <div class="button-wrapper button-two">
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { ref } from "vue";
 export default {
   name: "PositionedButtons",
   methods: {
@@ -33,6 +34,7 @@ export default {
       console.log("Button 2 clicked");
     },
   },
+  const dynamicValue = ref("10 / 20"); // Example: makes / attempts
 };
 </script>
 
@@ -40,7 +42,7 @@ export default {
 .background-container {
   position: relative;
   width: 100%;
-  height: 40vh;
+  height: 25vh;
   background-image: url("../assets/HalfCourtBasketball.png");
   background-size: cover;
   background-position: center;
