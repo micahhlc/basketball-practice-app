@@ -3,19 +3,13 @@
   <div class="background-container">
     <!-- Each button is inside its own wrapper div -->
     <div class="button-wrapper button-one">
-      <button
-        @click="handleClick1"
-        class="rounded-full p-2 transition-transform hover:scale-110"
-      >
+      <button @click="handleClick1" class="rounded-full p-2 transition-transform hover:scale-110">
         <img src="../assets/basketball.png" alt="Basketball" class="h-8 w-8" />
       </button>
     </div>
     <div class="button-wrapper button-two">
       <!-- <button @click="handleClick2">Button 2</button> -->
-      <button
-        @click="handleClick2"
-        class="rounded-full p-2 transition-transform hover:scale-110"
-      >
+      <button @click="handleClick2" class="rounded-full p-2 transition-transform hover:scale-110">
         <img src="../assets/basketball.png" alt="Basketball" class="h-8 w-8" />
       </button>
     </div>
@@ -24,13 +18,13 @@
 
 <script>
 export default {
-  name: "PositionedButtons",
+  name: 'PositionedButtons',
   methods: {
     handleClick1() {
-      console.log("Button 1 clicked");
+      console.log('Button 1 clicked');
     },
     handleClick2() {
-      console.log("Button 2 clicked");
+      console.log('Button 2 clicked');
     },
   },
 };
@@ -41,7 +35,7 @@ export default {
   position: relative;
   width: 100%;
   height: 40vh;
-  background-image: url("../assets/HalfCourtBasketball.png");
+  background-image: url('../assets/HalfCourtBasketball.png');
   background-size: cover;
   background-position: center;
 }

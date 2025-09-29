@@ -39,7 +39,11 @@
           {{ isBulkMode ? 'Bulk Input Mode' : 'Live Mode' }}
         </label>
         <!-- Switch Component -->
-        <div @click="toggleInputMode" class="relative mb-4 inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300" :class="[isBulkMode ? 'bg-blue-500' : 'bg-blue-300']">
+        <div
+          @click="toggleInputMode"
+          class="relative mb-4 inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+          :class="[isBulkMode ? 'bg-blue-500' : 'bg-blue-300']"
+        >
           <span
             class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300"
             :class="{
@@ -68,7 +72,9 @@
         <input v-model.number="attempts" type="number" class="w-1/2 rounded border p-1 text-center" />
       </div>
 
-      <button @click="logRound()" class="mt-4 w-full rounded-lg bg-blue-500 px-4 py-2 text-white shadow-md">Log Round</button>
+      <button @click="logRound()" class="mt-4 w-full rounded-lg bg-blue-500 px-4 py-2 text-white shadow-md">
+        Log Round
+      </button>
     </div>
 
     <!-- Save Message -->
@@ -78,14 +84,20 @@
 
     <!-- Save Practice Session Button -->
     <div class="mt-4 flex justify-center">
-      <button @click="savePracticeSession" class="w-full rounded-lg bg-green-500 px-4 py-2 text-white shadow-md">Save Practice Session</button>
+      <button @click="savePracticeSession" class="w-full rounded-lg bg-green-500 px-4 py-2 text-white shadow-md">
+        Save Practice Session
+      </button>
     </div>
 
     <!-- Round Summary -->
     <div class="mt-6">
       <h2 class="mb-2 text-xl font-semibold">Rounds:</h2>
       <ul>
-        <li v-for="(round, index) in rounds" :key="index" class="mb-2 rounded-lg border border-gray-300 bg-gray-100 p-4 shadow-sm">
+        <li
+          v-for="(round, index) in rounds"
+          :key="index"
+          class="mb-2 rounded-lg border border-gray-300 bg-gray-100 p-4 shadow-sm"
+        >
           <!-- First Row: Round Info & Buttons -->
           <div class="flex items-center justify-between">
             <!-- Left Side: Round Info -->
@@ -103,15 +115,30 @@
 
             <!-- Right Side: Edit & Delete Buttons -->
             <div class="flex gap-2">
-              <button @click="editRound(index)" class="rounded-md border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-100">Edit</button>
-              <button @click="deleteRound(index)" class="rounded-md border border-red-600 px-3 py-1 text-red-600 hover:bg-red-100">Delete</button>
+              <button
+                @click="editRound(index)"
+                class="rounded-md border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-100"
+              >
+                Edit
+              </button>
+              <button
+                @click="deleteRound(index)"
+                class="rounded-md border border-red-600 px-3 py-1 text-red-600 hover:bg-red-100"
+              >
+                Delete
+              </button>
             </div>
           </div>
 
           <!-- Second Row (Only Shown When Editing) -->
           <div v-if="editingIndex === index" class="mt-2 flex items-center gap-2">
             <input v-model.number="tempMakes" type="number" min="0" class="w-16 rounded border px-3 py-1 text-center" />
-            <input v-model.number="tempAttempts" type="number" min="0" class="w-16 rounded border px-3 py-1 text-center" />
+            <input
+              v-model.number="tempAttempts"
+              type="number"
+              min="0"
+              class="w-16 rounded border px-3 py-1 text-center"
+            />
             <div class="flex gap-2">
               <button @click="saveEdit(index)" class="rounded bg-green-500 px-3 py-1 text-white">Save</button>
               <button @click="cancelEdit" class="rounded bg-gray-500 px-3 py-1 text-white">Cancel</button>
@@ -137,7 +164,9 @@ const goalReached = computed(() => totalShots.value >= goal);
 // Progress Display used variables
 const totalShots = ref(0);
 const totalMakes = computed(() => rounds.value.reduce((sum, round) => sum + round.makes, 0));
-const makePercentage = computed(() => (totalShots.value === 0 ? 0 : (totalMakes.value / totalShots.value) * 100).toFixed(1));
+const makePercentage = computed(() =>
+  (totalShots.value === 0 ? 0 : (totalMakes.value / totalShots.value) * 100).toFixed(1),
+);
 
 // Shared Input Area used variables
 const makes = ref(0);

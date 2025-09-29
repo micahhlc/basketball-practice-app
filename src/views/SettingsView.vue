@@ -3,14 +3,10 @@
     <h1>Settings</h1>
     <p>This is the Settings screen.</p>
   </div>
-  <div
-    class="rounded-md border border-white bg-red-500 px-4 py-2 font-bold text-white"
-  >
+  <div class="rounded-md border border-white bg-red-500 px-4 py-2 font-bold text-white">
     Prettier Test
   </div>
-  <div
-    class="w-1/2 rounded-md border border-white bg-red-500 px-4 py-2 font-bold text-white"
-  >
+  <div class="w-1/2 rounded-md border border-white bg-red-500 px-4 py-2 font-bold text-white">
     Prettier Test
   </div>
   <div class="container m-4 w-1/2 space-y-4 bg-blue-100 p-2">

@@ -24,26 +24,15 @@
     </div>
 
     <!-- Continue previous session -->
-    <div
-      v-if="sameDaySession"
-      class="m-6 flex w-84 flex-col rounded-lg bg-green-100 p-6 shadow-md"
-    >
+    <div v-if="sameDaySession" class="m-6 flex w-84 flex-col rounded-lg bg-green-100 p-6 shadow-md">
       <h1 class="mb-6 text-2xl">Resume previous session</h1>
-      <p class="pb-4">
-        You have a session from today. Do you want to continue?
-      </p>
-      <div
-        class="m-4 flex justify-between gap-2 rounded-lg border border-blue-300 bg-blue-100 p-4 shadow-md"
-      >
+      <p class="pb-4">You have a session from today. Do you want to continue?</p>
+      <div class="m-4 flex justify-between gap-2 rounded-lg border border-blue-300 bg-blue-100 p-4 shadow-md">
         <label for="goal" class="text-w text-lg font-bold"> Goal: </label>
-
         <span class="text-gray-400">{{ currentSession.goal }}</span>
       </div>
 
-      <button
-        @click="startPractice(true)"
-        class="mt-2 rounded-lg bg-green-500 px-6 py-2 text-white shadow-md"
-      >
+      <button @click="startPractice(true)" class="mt-2 rounded-lg bg-green-500 px-6 py-2 text-white shadow-md">
         Resume
       </button>
     </div>
@@ -51,50 +40,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const todayDate = getYYYYMMDD(); // Generate today's date string
 const goal = ref(200);
 const sameDaySession = ref(false);
-let sessionId = "";
+let sessionId = '';
 let currentSession = {};
 
 // Function to get YYYYMMDD format date
 function getYYYYMMDD() {
   const now = new Date();
-  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 }
 
 onMounted(() => {
   // Retrieve session ID and check if it's from today
-  currentSession = JSON.parse(localStorage.getItem("currentSession"));
+  currentSession = JSON.parse(localStorage.getItem('currentSession'));
   if (currentSession?.sessionId?.includes(todayDate)) {
     sameDaySession.value = true;
-    console.log("p-g: same day session found");
+    console.log('p-g: same day session found');
   } else {
-    console.log("p-g: No same day session found");
+    console.log('p-g: No same day session found');
   }
 });
 
 // Function to start a new or continue an existing practice session
 const startPractice = (reloadPrevious) => {
   if (reloadPrevious && sameDaySession) {
-    console.log("p-g: reload true: ", sessionId);
+    console.log('p-g: reload true: ', sessionId);
     sessionId = currentSession.sessionId;
     router.push({
-      path: "/practice-d",
+      path: '/practice-d',
       query: {
         sessionId: sessionId,
         goal: currentSession.goal,
       },
     });
   } else {
-    console.log("p-g: reload false: ", sessionId);
+    console.log('p-g: reload false: ', sessionId);
     sessionId = `session-${todayDate}-${Date.now()}`;
     router.push({
-      path: "/practice-d",
+      path: '/practice-d',
       query: {
         sessionId: sessionId,
         goal: goal.value,
