@@ -1,33 +1,15 @@
 <template>
   <nav class="fixed bottom-0 w-full bg-gray-800 py-3 text-white">
     <div class="flex justify-around">
-      <RouterLink
-        to="/practice-g"
-        class="menu-item"
-        :class="{ 'text-blue-400': $route.path === '/practice-g' }"
-      >
-        Practice
-      </RouterLink>
-      <RouterLink
-        to="/test"
-        class="menu-item"
-        :class="{ 'text-blue-400': $route.path === '/test' }"
-      >
-        Stats
-      </RouterLink>
-      <RouterLink
-        to="/settings"
-        class="menu-item"
-        :class="{ 'text-blue-400': $route.path === '/settings' }"
-      >
-        Settings
-      </RouterLink>
+      <RouterLink to="/practice-g" class="menu-item" :class="{ 'text-blue-400': $route.path === '/practice-g' }"> Practice </RouterLink>
+      <RouterLink to="/test" class="menu-item" :class="{ 'text-blue-400': $route.path === '/test' }"> Stats </RouterLink>
+      <RouterLink to="/settings" class="menu-item" :class="{ 'text-blue-400': $route.path === '/settings' }"> Settings </RouterLink>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute } from 'vue-router';
 const $route = useRoute();
 </script>
 

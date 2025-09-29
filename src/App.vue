@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen">
+  <div class="flex h-screen flex-col">
     <div class="flex-grow">
       <router-view />
     </div>
@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import BottomMenu from './components/BottomMenu.vue';
+import BottomMenu from "./components/BottomMenu.vue";
 </script>
 
 <style>
